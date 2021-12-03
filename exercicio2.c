@@ -5,7 +5,7 @@
 #include <windows.h>
 #include <locale.h>
 
-#define HEAP_SIZE 100
+#define HEAP_SIZE 80
 
 typedef struct  elemento
 {
@@ -26,6 +26,7 @@ void ModoHeap(char *metodo);
 void Adicionar(char id, int tamanho, bool *heap, listaElementos **lista);
 void Deletar(char id, bool *heap, listaElementos **lista);
 void Atribuir(elemento *a, elemento *b, bool *heapLixo);
+void *DestroiLista(listaElementos *lista);
 void Interpretar(bool *heap, bool *heapLixo, listaElementos **lista);
 
 HANDLE hConsole;
@@ -41,7 +42,6 @@ int main()
     bool heap[HEAP_SIZE];
     bool heapLixo[HEAP_SIZE];
     listaElementos *lista = NULL;
-    listaElementos *aux;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     Inicializar(heap);
     Inicializar(heapLixo);
@@ -50,6 +50,7 @@ int main()
     {
         Interpretar(heap, heapLixo, &lista);
     }
+    lista = DestroiLista(lista);
 }
 
 elemento *CriaElemento(char id, int tamanho)
@@ -202,6 +203,17 @@ void Atribuir(elemento *a, elemento *b, bool *heapLixo)
         a->tamanho = b->tamanho;
     }
 }
+void *DestroiLista(listaElementos *lista)
+{
+    if(lista != NULL)
+    {
+        listaElementos *aux = lista->prox;
+        free(lista->obj);
+        free(lista);
+        return DestroiLista(aux);
+    }
+    return NULL;
+}
 void Interpretar(bool *heap, bool *heapLixo, listaElementos **lista)
 {
     char cmd[15];
@@ -275,6 +287,7 @@ void Interpretar(bool *heap, bool *heapLixo, listaElementos **lista)
     }else if(strcmp(aux, "exit") == 0)
     {
         cont = 1;
+        printf("\n");
     }else
     {
         if(strlen(aux) != 0)
