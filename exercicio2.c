@@ -97,12 +97,15 @@ void ModoHeap(char *metodo)
     if(strcmp(metodo, "next") == 0)
     {
         modo = 1;
+        printf("\nHeap usando método Next-fit\n");
     }
     else if(strcmp(metodo, "first") == 0)
     {
         modo = 0;
         ind = 0;
-    }
+        printf("\nHeap usando método First-fit\n");
+    }else
+        printf("\nArgumento %c%s%c não reconhecido\n", 34, metodo, 34);
 }
 void AdicionarNaLista(elemento *obj, listaElementos **lista)
 {
@@ -160,41 +163,50 @@ void Adicionar(char id, int tamanho, bool *heap, listaElementos **lista)
         obj->ini = ini;
         ind = ini + obj->tamanho;
         AdicionarNaLista(obj, lista);
-    }
+    }else
+        printf("\nSem espaço suficiente no heap.\n");
 }
 void Deletar(char id, bool *heap, listaElementos **lista)
 {
     listaElementos *aux = *lista;
-    while(aux->obj->id != id)
+    while(aux != NULL && aux->obj->id != id)
         aux = aux->prox;
-    for(int i = aux->obj->ini; i < aux->obj->ini + aux->obj->tamanho; i++)
-        heap[i] = false;
-    int ini = aux->obj->ini;
-    *lista = RemoverDaLista(aux->obj, *lista);
-    aux = *lista;
-    while(aux != NULL)
+    if(aux != NULL)
     {
-        if(aux->obj->ini == ini)
+        for(int i = aux->obj->ini; i < aux->obj->ini + aux->obj->tamanho; i++)
+            heap[i] = false;
+        int ini = aux->obj->ini;
+        *lista = RemoverDaLista(aux->obj, *lista);
+        aux = *lista;
+        while(aux != NULL)
         {
-            *lista = RemoverDaLista(aux->obj, *lista);
-            aux = *lista;
-        }else
-            aux = aux->prox;
-    }
+            if(aux->obj->ini == ini)
+            {
+                *lista = RemoverDaLista(aux->obj, *lista);
+                aux = *lista;
+            }else
+                aux = aux->prox;
+        }
+    }else
+        printf("\nElemento não encontrado no heap.\n");
 }
 void Atribuir(elemento *a, elemento *b, bool *heapLixo)
 {
-    for(int i = 0; i < a->tamanho; i++)
+    if(a != b)
     {
-        heapLixo[i + a->ini] = true;
+        for(int i = 0; i < a->tamanho; i++)
+        {
+            heapLixo[i + a->ini] = true;
+        }
+        a->ini = b->ini;
+        a->tamanho = b->tamanho;
     }
-    a->ini = b->ini;
-    a->tamanho = b->tamanho;
 }
 void Interpretar(bool *heap, bool *heapLixo, listaElementos **lista)
 {
     char cmd[15];
     char aux[15];
+    listaElementos *auxlista = *lista;
 
     printf("\n> ");
     fgets(cmd, 15, stdin);
@@ -209,13 +221,24 @@ void Interpretar(bool *heap, bool *heapLixo, listaElementos **lista)
     {
         j++;
         char id = cmd[j];
-        j++; j++;
-        int i;
-        for(i = 0; cmd[j + i] != '\0'; i++)
-            aux[i] = cmd[j + i];
-        aux[i] = '\0';
-        int tamanho = atoi(aux);
-        Adicionar(id, tamanho, heap, lista);
+        while(auxlista != NULL && auxlista->obj->id != id)
+            auxlista = auxlista->prox;
+        if(auxlista == NULL)
+        {
+            while(cmd[j] != ' ' && cmd[j] != '\0')
+                j++;
+            j++;
+            int i;
+            for(i = 0; cmd[j + i] != '\0'; i++)
+                aux[i] = cmd[j + i];
+            aux[i] = '\0';
+            int tamanho = atoi(aux);
+            if(tamanho == 0)
+                printf("\nTamanho inválido\n");
+            else
+                Adicionar(id, tamanho, heap, lista);
+        }else
+            printf("\nElemento %c%c%c já existe\n", 34, id, 34);
     }else if (strcmp(aux, "heap") == 0)
     {
         j++;
@@ -234,8 +257,7 @@ void Interpretar(bool *heap, bool *heapLixo, listaElementos **lista)
     }else if(cmd[j + 1] == '=')
     {
         char *par2 = cmd + j + 3;
-        listaElementos *auxlista = *lista;
-        elemento *a, *b;
+        elemento *a = NULL, *b = NULL;
         while(auxlista != NULL)
         {
             if(auxlista->obj->id == aux[0])
@@ -244,10 +266,18 @@ void Interpretar(bool *heap, bool *heapLixo, listaElementos **lista)
                 b = auxlista->obj;
             auxlista = auxlista->prox;
         }
-        Atribuir(a, b, heapLixo);
+        if(a == NULL)
+            printf("\nElemento %c%c%c não econtrado\n", 34, aux[0], 34);
+        if(b == NULL)
+            printf("\nElemento %c%c%c não econtrado\n", 34, par2[0], 34);
+        if(a != NULL && b != NULL)
+            Atribuir(a, b, heapLixo);
     }else if(strcmp(aux, "exit") == 0)
     {
         cont = 1;
     }else
-        printf("Comando %c%s%c não reconhecido\n", 34, aux, 34);
+    {
+        if(strlen(aux) != 0)
+        printf("\nComando %c%s%c não reconhecido\n", 34, aux, 34);
+    }
 }
