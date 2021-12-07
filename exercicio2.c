@@ -103,7 +103,6 @@ void ModoHeap(char *metodo)
     else if(strcmp(metodo, "first") == 0)
     {
         modo = 0;
-        ind = 0;
         printf("\nHeap usando método First-fit\n");
     }else
         printf("\nArgumento %c%s%c não reconhecido\n", 34, metodo, 34);
@@ -144,16 +143,17 @@ void Adicionar(char id, int tamanho, bool *heap, listaElementos **lista)
     else
         i = 0;
 
-    bool test = false;
     int ini = -1;
     while(i < HEAP_SIZE && ini == -1)
     {
         if(heap[i] == false && i + obj->tamanho <= HEAP_SIZE)
         {
-            for(int j = 0; j < obj->tamanho; j++)
-                test = test || heap[j + i];
+            bool test = false;
+            int j = i;
+            for(; i - j < obj->tamanho; i++)
+                test = test || heap[i];
             if(!test)
-                ini = i;
+                ini = j;
         }
         i++;
     }
