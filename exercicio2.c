@@ -103,6 +103,7 @@ void ModoHeap(char *metodo)
     else if(strcmp(metodo, "first") == 0)
     {
         modo = 0;
+        ind = 0;
         printf("\nHeap usando método First-fit\n");
     }else
         printf("\nArgumento %c%s%c não reconhecido\n", 34, metodo, 34);
